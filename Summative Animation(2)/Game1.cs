@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Threading;
 
 namespace Summative_Animation_2_
 {
@@ -17,14 +18,26 @@ namespace Summative_Animation_2_
             Outro
         }
 
+        enum FriskAction
+        {
+            start,
+            leg1,
+            lookAround,
+            leg2,
+
+        }
+
         Screen screen;
+        FriskAction friskAction;
         SpriteFont dialogue, title;
         MouseState mouseState;
         Texture2D friskRight1, friskRight2, friskRightStill, friskLeft1, friskLeft2, friskLeftStill, friskForward1, friskForward2, friskForwardStill, friskBack1, friskBackStill, undyneRight1, undyneRight2, undyneForward1, undyneForward2, undyneRightStill, introScreen, waterFall1, waterFall2, outroScreen;
         Vector2 friskSpeed, undyneSpeed;
         Rectangle friskRect, undyneRect, backgroundRect, titleRect;
 
-        bool friskStart = false, friskLeg1 = false, friskLeg2 = false, undyneLeg1 = false, undyneLeg2 = false;
+        int friskTurns = 0;
+        float friskStopStamp1, friskStopStamp2;
+       
 
         public Game1()
         {
@@ -87,14 +100,10 @@ namespace Summative_Animation_2_
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            if (friskLeg1)
-            {
-                friskSpeed = new Vector2(0, -3);
-            }
-            else if (friskLeg2)
-            {
-                friskSpeed = new Vector2(-3, 0);
 
+            if (friskRect.Top < 100 && friskAction == FriskAction.leg1)
+            {
+                friskAction = FriskAction.lookAround;
             }
 
             mouseState = Mouse.GetState();
@@ -104,15 +113,29 @@ namespace Summative_Animation_2_
                 if (mouseState.LeftButton == ButtonState.Pressed && backgroundRect.Contains(mouseState.X, mouseState.Y))
                 {
                     screen = Screen.Waterfall1;
-                    friskLeg1 = true;
+                    friskAction = FriskAction.leg1;
                 }
             }
             if (screen == Screen.Waterfall1)
             {
-                friskStart = true;
-                if (friskLeg1)
+                if (friskAction == FriskAction.leg1)
                 {
+                    friskSpeed = new Vector2(0, -3);
                     friskRect.Y += (int)friskSpeed.Y;
+
+                    if (friskRect.Top < 100)
+                    {
+                        friskAction = FriskAction.lookAround;
+                    } 
+                }
+                else if (friskAction == FriskAction.lookAround)
+                {
+                    friskSpeed = new Vector2(0, 0);
+                }
+                else if (friskAction == FriskAction.leg2)
+                {
+                    friskSpeed = new Vector2(3, 0);
+                    friskRect.X += (int)friskSpeed.X;
                 }
             }
 
@@ -133,9 +156,27 @@ namespace Summative_Animation_2_
             if (screen == Screen.Waterfall1)
             {
                 _spriteBatch.Draw(waterFall1, backgroundRect, Color.White);
-                if (friskStart)
+                if (friskAction == FriskAction.leg1)
                 {
                     _spriteBatch.Draw(friskBack1, friskRect, Color.White);
+                }
+                if (friskAction == FriskAction.lookAround)
+                {
+                    _spriteBatch.Draw(friskLeftStill, friskRect, Color.White);
+                    if (friskTurns == 0)
+                    {
+                        friskStopStamp1 = (float)gameTime.TotalGameTime.TotalMilliseconds;
+                        friskTurns++;
+                    }
+                    else if (friskTurns == 1)
+                    {
+                        friskStopStamp2 = (float)gameTime.TotalGameTime.TotalMilliseconds;
+
+                    }
+                    if (friskStopStamp2 == friskStopStamp1 + 500)
+                    {
+                        _spriteBatch.Draw(friskRightStill, friskRect, Color.White);
+                    }
                 }
 
             }
@@ -147,6 +188,7 @@ namespace Summative_Animation_2_
             {
                 _spriteBatch.Draw(outroScreen, backgroundRect, Color.White);
             }
+            
 
 
             _spriteBatch.End();
