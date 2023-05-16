@@ -36,7 +36,7 @@ namespace Summative_Animation_2_
         Rectangle friskRect, undyneRect, backgroundRect, titleRect;
 
         int friskTurns = 0;
-        float friskStopStamp1, friskStopStamp2;
+        float timeStamp, milliseconds, animationCycleMilliSec;
        
 
         public Game1()
@@ -70,7 +70,7 @@ namespace Summative_Animation_2_
             friskRightStill = Content.Load<Texture2D>("FriskRightStill");
             friskRight1 = Content.Load<Texture2D>("FriskRightWalk1");
 
-            friskLeftStill = Content.Load<Texture2D>("FriskRightStill");
+            friskLeftStill = Content.Load<Texture2D>("FriskLeftStill");
             friskLeft1 = Content.Load<Texture2D>("FriskLeftWalk1");
 
             friskForwardStill = Content.Load<Texture2D>("FriskForwardStill");
@@ -100,12 +100,6 @@ namespace Summative_Animation_2_
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
-            if (friskRect.Top < 100 && friskAction == FriskAction.leg1)
-            {
-                friskAction = FriskAction.lookAround;
-            }
-
             mouseState = Mouse.GetState();
             
             if (screen == Screen.Intro)
@@ -125,16 +119,22 @@ namespace Summative_Animation_2_
 
                     if (friskRect.Top < 100)
                     {
+                        timeStamp = (float)gameTime.TotalGameTime.TotalMilliseconds;
+                        friskSpeed = new Vector2(0, 0);
                         friskAction = FriskAction.lookAround;
                     } 
                 }
                 else if (friskAction == FriskAction.lookAround)
                 {
-                    friskSpeed = new Vector2(0, 0);
+                    milliseconds = (float)gameTime.TotalGameTime.TotalMilliseconds - timeStamp;
+                    if (milliseconds >= 2000)
+                    {
+                        friskSpeed = new Vector2(3, 0);
+                        friskAction= FriskAction.leg2;
+                    } 
                 }
                 else if (friskAction == FriskAction.leg2)
                 {
-                    friskSpeed = new Vector2(3, 0);
                     friskRect.X += (int)friskSpeed.X;
                 }
             }
@@ -156,34 +156,62 @@ namespace Summative_Animation_2_
             if (screen == Screen.Waterfall1)
             {
                 _spriteBatch.Draw(waterFall1, backgroundRect, Color.White);
+
+                int i = 1;
+                if (i == 60)
+                {
+                    timeStamp = (float)gameTime.TotalGameTime.TotalMilliseconds;
+                }
                 if (friskAction == FriskAction.leg1)
                 {
-                    _spriteBatch.Draw(friskBack1, friskRect, Color.White);
-                }
-                if (friskAction == FriskAction.lookAround)
-                {
-                    _spriteBatch.Draw(friskLeftStill, friskRect, Color.White);
-                    if (friskTurns == 0)
-                    {
-                        friskStopStamp1 = (float)gameTime.TotalGameTime.TotalMilliseconds;
-                        friskTurns++;
-                    }
-                    else if (friskTurns == 1)
-                    {
-                        friskStopStamp2 = (float)gameTime.TotalGameTime.TotalMilliseconds;
+                    Window.Title = milliseconds.ToString() + "  :  " + timeStamp.ToString();
 
-                    }
-                    if (friskStopStamp2 == friskStopStamp1 + 500)
+                    milliseconds = (float)gameTime.TotalGameTime.TotalMilliseconds - timeStamp;
+                    if (milliseconds > timeStamp && milliseconds <= timeStamp + 250)
                     {
-                        _spriteBatch.Draw(friskRightStill, friskRect, Color.White);
+                        _spriteBatch.Draw(friskBack1, friskRect, Color.White);
                     }
+                    else if (milliseconds > timeStamp + 250 && milliseconds <= timeStamp + 500)
+                    {
+                        _spriteBatch.Draw(friskBackStill, friskRect, Color.White);
+                    }
+                    else if (milliseconds > timeStamp + 500 && milliseconds <= timeStamp + 750)
+                    {
+                        _spriteBatch.Draw(friskBack1, friskRect, Color.White);
+                    }
+                    else if (milliseconds > timeStamp + 750 && milliseconds <= timeStamp + 999)
+                    {
+                        _spriteBatch.Draw(friskBackStill, friskRect, Color.White);
+                    }
+                }
+
+
+                if (friskAction == FriskAction.lookAround)
+                {                  
+                    if (milliseconds <= 1000)
+                    { 
+                        _spriteBatch.Draw(friskLeftStill, friskRect, Color.White); 
+                    }
+                    else if (milliseconds <= 2000)
+                    {                      
+                        _spriteBatch.Draw(friskRightStill, friskRect, Color.White); 
+                    }
+                    
+                }
+                else if (friskAction == FriskAction.leg2)
+                {
+                    _spriteBatch.Draw(friskRight1, friskRect, Color.White);
                 }
 
             }
+
+
             if (screen == Screen.Waterfall2)
             {
                 _spriteBatch.Draw(waterFall2, backgroundRect, Color.White);
             }
+
+
             if (screen == Screen.Outro)
             {
                 _spriteBatch.Draw(outroScreen, backgroundRect, Color.White);
