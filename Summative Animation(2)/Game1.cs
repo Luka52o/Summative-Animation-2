@@ -31,20 +31,21 @@ namespace Summative_Animation_2_
             leg2,
         }
 
-        List<Texture2D> friskRightTextures = new List<Texture2D>(); // aldworth
+        List<Texture2D> friskRightTextures = new List<Texture2D>();
         List<Texture2D> friskUpTextures = new List<Texture2D>();
         List<Texture2D> undyneUpTextures = new List<Texture2D>();
+        List<Texture2D> undyneRightTextures = new List<Texture2D>();
 
         Screen screen;
         FriskAction friskAction;
         UndyneAction undyneAction;
         SpriteFont dialogue, title;
         MouseState mouseState;
-        Texture2D friskRight1, friskRightStill,  friskLeftStill, friskBack1, friskBackStill, undyneRight1, undyneRight2, undyneRight3, undyneUp1, undyneUp2, undyneUp3, introScreen, waterFall1, waterFall2, outroScreen;
+        Texture2D friskRight1, friskRightStill, friskLeftStill, friskBack1, friskBack2, friskBackStill, undyneRight1, undyneRight2, undyneRight3, undyneUp1, undyneUp2, undyneUp3, introScreen, waterFall1, outroScreen;
         Vector2 friskSpeed, undyneSpeed;
-        Rectangle friskRect, undyneRect, backgroundRect, titleRect;
+        Rectangle friskRect, undyneRect, backgroundRect;
 
-        int friskTurns = 0, animationCycleCounter = 0, i = 0, j = 0;
+        int friskAnimationCycleCounter = 0, undyneAnimationCycleCounter = 0, friskSpriteTimer = 0, undyneSpriteTimer = 0;
         float timeStamp, milliseconds, undyneStartCounter, undyneStartTimeStamp;
        
 
@@ -65,7 +66,7 @@ namespace Summative_Animation_2_
 
             backgroundRect = new Rectangle(0, 0, 1000, 700);
             friskRect = new Rectangle(425, 632, 42, 68);
-            undyneRect = new Rectangle(300, 500, 50, 105);
+            undyneRect = new Rectangle(425, 832, 50, 105);
 
 
             base.Initialize();
@@ -86,14 +87,20 @@ namespace Summative_Animation_2_
 
             friskBackStill = Content.Load<Texture2D>("FriskBackStill");
             friskBack1 = Content.Load<Texture2D>("FriskBackWalk1");
+            friskBack2 = Content.Load<Texture2D>("FriskBackWalk2");
 
             friskUpTextures.Add(friskBackStill);
             friskUpTextures.Add(friskBack1);
+            friskUpTextures.Add(friskBack2);
 
             // UNDYNE WALKING ANIMATION SPRITES
             undyneRight1 = Content.Load<Texture2D>("UndyneRight1");
             undyneRight1 = Content.Load<Texture2D>("UndyneRight2");
             undyneRight2 = Content.Load<Texture2D>("UndyneRight3");
+
+            undyneRightTextures.Add(undyneRight1);
+            undyneRightTextures.Add(undyneRight2);
+            undyneRightTextures.Add(undyneRight3);
 
             undyneUp1 = Content.Load<Texture2D>("UndyneUp1");
             undyneUp2 = Content.Load<Texture2D>("UndyneUp2");
@@ -101,13 +108,13 @@ namespace Summative_Animation_2_
 
             undyneUpTextures.Add(undyneUp1);
             undyneUpTextures.Add(undyneUp2);
+            undyneUpTextures.Add(undyneUp3);
 
 
 
             // BACKGROUNDS
             introScreen = Content.Load<Texture2D>("RuinsIntroScreen");
             waterFall1 = Content.Load<Texture2D>("WaterfallScreen1");
-            waterFall2 = Content.Load<Texture2D>("WaterfallScreen2");
 
             title = Content.Load<SpriteFont>("title");
             dialogue = Content.Load<SpriteFont>("dialogue");
@@ -125,31 +132,29 @@ namespace Summative_Animation_2_
                 {
                     screen = Screen.Waterfall1;
                     friskAction = FriskAction.leg1;
-                }
-            }
-            if (screen == Screen.Waterfall1)
-            { 
-                if (j == 0)
-                {
                     timeStamp = (float)gameTime.TotalGameTime.TotalMilliseconds;
                 }
+            }
+            else if (screen == Screen.Waterfall1)
+            {
+                // FRISK
                 if (friskAction == FriskAction.leg1)
                 {
-                    i++;
+                    friskSpriteTimer++;
                     friskSpeed = new Vector2(0, -3);
                     friskRect.Y += (int)friskSpeed.Y;
 
-                    if (i == 15)
+                    if (friskSpriteTimer == 15)
                     {
-                        if (animationCycleCounter == 0) // change these to 2 if another sprite is needed
+                        if (friskAnimationCycleCounter >= 0 && friskAnimationCycleCounter < 2) 
                         {
-                            animationCycleCounter = 1;
+                            friskAnimationCycleCounter++;
                         }
-                        else if (animationCycleCounter == 1) // ^^
+                        else if (friskAnimationCycleCounter == 2) 
                         {
-                            animationCycleCounter = 0;
-                        }
-                        i = 0;
+                            friskAnimationCycleCounter = 0;
+                        }   
+                        friskSpriteTimer = 0;
                     }
                     if (friskRect.Top < 100)
                     {
@@ -158,39 +163,83 @@ namespace Summative_Animation_2_
                         friskAction = FriskAction.lookAround;
                     }
                 }
+
+
                 else if (friskAction == FriskAction.lookAround)
                 {
                     milliseconds = (float)gameTime.TotalGameTime.TotalMilliseconds - timeStamp;
                     if (milliseconds >= 1000)
                     {
+                        friskAnimationCycleCounter = 0;
                         friskSpeed = new Vector2(3, 0);
                         friskAction = FriskAction.leg2;
                     }
                 }
+
+
                 else if (friskAction == FriskAction.leg2)
                 {
-                    i++;
+                    friskSpriteTimer++;
                     friskRect.X += (int)friskSpeed.X;
-                    if (i == 15)
+                    if (friskSpriteTimer == 15)
                     {
-                        if (animationCycleCounter == 0) // change these to 2 if another sprite is needed
+                        if (friskAnimationCycleCounter == 0) 
                         {
-                            animationCycleCounter = 1;
+                            friskAnimationCycleCounter = 1;
                         }
-                        else if (animationCycleCounter == 1) // ^^
+                        else if (friskAnimationCycleCounter == 1) 
                         {
-                            animationCycleCounter = 0;
+                            friskAnimationCycleCounter = 0;
                         }
-                        i = 0;
+                        friskSpriteTimer = 0;
                     }
                 }
+
+
+
+
+                // UNDYNE
                 if (undyneAction == UndyneAction.leg1)
                 {
+                    undyneSpriteTimer++;
                     undyneStartCounter = (float)gameTime.TotalGameTime.TotalMilliseconds - timeStamp;
-                    if ((float)gameTime.TotalGameTime.TotalMilliseconds - undyneStartCounter >= 1000)
+                    if ((float)gameTime.TotalGameTime.TotalMilliseconds - undyneStartCounter >= 3000)
                     {
                         undyneSpeed = new Vector2(0, -4);
-                        undyneRect.Y += (int)undyneRect.Y;
+                    }
+                    undyneRect.Y += (int)undyneSpeed.Y;
+                    if (undyneSpriteTimer == 15)
+                    {
+                        if (undyneAnimationCycleCounter >= 0 && undyneAnimationCycleCounter < 2)
+                        {
+                            undyneAnimationCycleCounter++;
+                        }
+                        else if (undyneAnimationCycleCounter == 2)
+                        {
+                            undyneAnimationCycleCounter = 0;
+                        }
+                        undyneSpriteTimer = 0;
+                    }
+                    if (undyneRect.Y <= 100)
+                    {
+                        undyneAction = UndyneAction.leg2;
+                        undyneSpeed = new Vector2(4, 0);
+                    }
+                }
+                else if (undyneAction == UndyneAction.leg2)
+                {
+                    undyneSpriteTimer++;
+                    if (undyneSpriteTimer == 15)
+                    {
+                        if (undyneAnimationCycleCounter >= 0 && undyneAnimationCycleCounter < 2)
+                        {
+                            undyneAnimationCycleCounter++;
+                        }
+                        else if (undyneAnimationCycleCounter == 2)
+                        {
+                            undyneAnimationCycleCounter = 0;
+                        }
+                        undyneSpriteTimer = 0;
                     }
                 }
             }
@@ -212,13 +261,13 @@ namespace Summative_Animation_2_
             {
                 _spriteBatch.Draw(waterFall1, backgroundRect, Color.White);
 
+
+                // FRISK
                 if (friskAction == FriskAction.leg1)
                 {
-                    _spriteBatch.Draw(friskUpTextures[animationCycleCounter], friskRect, Color.White);
+                    _spriteBatch.Draw(friskUpTextures[friskAnimationCycleCounter], friskRect, Color.White);
                 }
-
-
-                if (friskAction == FriskAction.lookAround)
+                else if (friskAction == FriskAction.lookAround)
                 {                  
                     if (milliseconds <= 500)
                     { 
@@ -228,18 +277,22 @@ namespace Summative_Animation_2_
                     {                      
                         _spriteBatch.Draw(friskRightStill, friskRect, Color.White); 
                     }
-                    
                 }
                 else if (friskAction == FriskAction.leg2)
                 {
-                    _spriteBatch.Draw(friskRightTextures[animationCycleCounter], friskRect, Color.White);
+                    _spriteBatch.Draw(friskRightTextures[friskAnimationCycleCounter], friskRect, Color.White);
                 }
 
 
-
+                // UNDYNE
                 if (undyneAction == UndyneAction.leg1)
                 {
-                    _spriteBatch.Draw(undyneUpTextures[animationCycleCounter], undyneRect, Color.White);
+                    _spriteBatch.Draw(undyneUpTextures[undyneAnimationCycleCounter], undyneRect, Color.White);
+                }
+                else if (undyneAction == UndyneAction.leg2)
+                {
+                    _spriteBatch.Draw(undyneRightTextures[undyneAnimationCycleCounter], undyneRect, Color.White);
+
                 }
             }
 

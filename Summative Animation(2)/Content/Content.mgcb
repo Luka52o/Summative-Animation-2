@@ -44,6 +44,18 @@
 /processorParam:TextureFormat=Color
 /build:FriskBackWalk1.png
 
+#begin FriskBackWalk2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:FriskBackWalk2.png
+
 #begin FriskForwardStill.png
 /importer:TextureImporter
 /processor:TextureProcessor
