@@ -41,12 +41,13 @@ namespace Summative_Animation_2_
         UndyneAction undyneAction;
         SpriteFont dialogue, title;
         MouseState mouseState;
-        Texture2D friskRight1, friskRightStill, friskLeftStill, friskBack1, friskBack2, friskBackStill, undyneRight1, undyneRight2, undyneRight3, undyneUp1, undyneUp2, undyneUp3, introScreen, waterFall1, outroScreen;
+        Texture2D friskRight1, friskRightStill, friskLeftStill, friskBack1, friskBack2, friskBackStill, undyneRight1, undyneRight2, undyneRight3, undyneUp1, undyneUp2, undyneUp3, introScreen, waterFall1, speechBubble;
         Vector2 friskSpeed, undyneSpeed;
-        Rectangle friskRect, undyneRect, backgroundRect;
+        Rectangle friskRect, undyneRect,speechBubbleRect, backgroundRect;
 
         int friskAnimationCycleCounter = 0, undyneAnimationCycleCounter = 0, friskSpriteTimer = 0, undyneSpriteTimer = 0;
         float timeStamp, milliseconds, undyneStartCounter, undyneStartTimeStamp;
+        bool callForHelp = false;
        
 
         public Game1()
@@ -67,6 +68,7 @@ namespace Summative_Animation_2_
             backgroundRect = new Rectangle(0, 0, 1000, 700);
             friskRect = new Rectangle(425, 632, 42, 68);
             undyneRect = new Rectangle(425, 832, 50, 105);
+            speechBubbleRect = new Rectangle(700, 10, 250, 150);
 
 
             base.Initialize();
@@ -95,13 +97,14 @@ namespace Summative_Animation_2_
 
             // UNDYNE WALKING ANIMATION SPRITES
             undyneRight1 = Content.Load<Texture2D>("UndyneRight1");
-            undyneRight1 = Content.Load<Texture2D>("UndyneRight2");
-            undyneRight2 = Content.Load<Texture2D>("UndyneRight3");
+            undyneRight2= Content.Load<Texture2D>("UndyneRight2");
+            undyneRight3= Content.Load<Texture2D>("UndyneRight3");
 
             undyneRightTextures.Add(undyneRight1);
             undyneRightTextures.Add(undyneRight2);
             undyneRightTextures.Add(undyneRight3);
 
+            
             undyneUp1 = Content.Load<Texture2D>("UndyneUp1");
             undyneUp2 = Content.Load<Texture2D>("UndyneUp2");
             undyneUp3 = Content.Load<Texture2D>("UndyneUp3");
@@ -118,10 +121,13 @@ namespace Summative_Animation_2_
 
             title = Content.Load<SpriteFont>("title");
             dialogue = Content.Load<SpriteFont>("dialogue");
+
+            speechBubble = Content.Load<Texture2D>("speechBubble");
         }
 
         protected override void Update(GameTime gameTime)
         {
+            Window.Title = milliseconds.ToString();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             mouseState = Mouse.GetState();
@@ -173,12 +179,15 @@ namespace Summative_Animation_2_
                         friskAnimationCycleCounter = 0;
                         friskSpeed = new Vector2(3, 0);
                         friskAction = FriskAction.leg2;
+                        timeStamp = (float)gameTime.TotalGameTime.TotalMilliseconds;
                     }
                 }
 
 
                 else if (friskAction == FriskAction.leg2)
                 {
+                    milliseconds = (float)gameTime.TotalGameTime.TotalMilliseconds - timeStamp;
+
                     friskSpriteTimer++;
                     friskRect.X += (int)friskSpeed.X;
                     if (friskSpriteTimer == 15)
@@ -193,8 +202,20 @@ namespace Summative_Animation_2_
                         }
                         friskSpriteTimer = 0;
                     }
+                    if (milliseconds >= 1000 && milliseconds < 1750)
+                    {
+                        callForHelp = true;
+                    }
+                    else
+                    {
+                        callForHelp = false;
+                    }
+                    if (milliseconds >= 4750)
+                    {
+                        screen = Screen.Outro;
+                    }
                 }
-
+                
 
 
 
@@ -220,7 +241,7 @@ namespace Summative_Animation_2_
                         }
                         undyneSpriteTimer = 0;
                     }
-                    if (undyneRect.Y <= 100)
+                    if (undyneRect.Y <= 75)
                     {
                         undyneAction = UndyneAction.leg2;
                         undyneSpeed = new Vector2(4, 0);
@@ -229,6 +250,7 @@ namespace Summative_Animation_2_
                 else if (undyneAction == UndyneAction.leg2)
                 {
                     undyneSpriteTimer++;
+                    undyneRect.X += (int)undyneSpeed.X;
                     if (undyneSpriteTimer == 15)
                     {
                         if (undyneAnimationCycleCounter >= 0 && undyneAnimationCycleCounter < 2)
@@ -241,6 +263,13 @@ namespace Summative_Animation_2_
                         }
                         undyneSpriteTimer = 0;
                     }
+                }
+            }
+            if (screen == Screen.Outro)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed && backgroundRect.Contains(mouseState.X, mouseState.Y))
+                {
+                    Exit();
                 }
             }
             base.Update(gameTime);
@@ -282,6 +311,11 @@ namespace Summative_Animation_2_
                 {
                     _spriteBatch.Draw(friskRightTextures[friskAnimationCycleCounter], friskRect, Color.White);
                 }
+                if (callForHelp)
+                {
+                    _spriteBatch.Draw(speechBubble, speechBubbleRect, Color.White);
+                    _spriteBatch.DrawString(dialogue, "Help!", new Vector2(800, 50), Color.Black);
+                }
 
 
                 // UNDYNE
@@ -298,9 +332,12 @@ namespace Summative_Animation_2_
 
             if (screen == Screen.Outro)
             {
-                _spriteBatch.Draw(outroScreen, backgroundRect, Color.White);
+                _spriteBatch.Draw(introScreen, backgroundRect, Color.White);
+                _spriteBatch.DrawString(title, "THE END", new Vector2(270, 50), Color.White);
+                _spriteBatch.DrawString(dialogue, "Click anywhere to exit", new Vector2(270, 110), Color.White);
+               
             }
-            
+
 
 
             _spriteBatch.End();
