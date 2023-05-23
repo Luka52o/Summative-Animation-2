@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -39,6 +40,7 @@ namespace Summative_Animation_2_
         Screen screen;
         FriskAction friskAction;
         UndyneAction undyneAction;
+        Song home, spearOfJustice;
         SpriteFont dialogue, title;
         MouseState mouseState;
         Texture2D friskRight1, friskRightStill, friskLeftStill, friskBack1, friskBack2, friskBackStill, undyneRight1, undyneRight2, undyneRight3, undyneUp1, undyneUp2, undyneUp3, introScreen, waterFall1, speechBubble;
@@ -47,7 +49,7 @@ namespace Summative_Animation_2_
 
         int friskAnimationCycleCounter = 0, undyneAnimationCycleCounter = 0, friskSpriteTimer = 0, undyneSpriteTimer = 0;
         float timeStamp, milliseconds, undyneStartCounter, undyneStartTimeStamp;
-        bool callForHelp = false;
+        bool callForHelp = false, homePlayed = false;
        
 
         public Game1()
@@ -123,6 +125,9 @@ namespace Summative_Animation_2_
             dialogue = Content.Load<SpriteFont>("dialogue");
 
             speechBubble = Content.Load<Texture2D>("speechBubble");
+
+            spearOfJustice = Content.Load<Song>("spearOfJustice");
+            home = Content.Load<Song>("home");
         }
 
         protected override void Update(GameTime gameTime)
@@ -134,11 +139,19 @@ namespace Summative_Animation_2_
             
             if (screen == Screen.Intro)
             {
+                if (!homePlayed)
+                {
+                    MediaPlayer.Play(home);
+                    homePlayed = true;
+                }
+
                 if (mouseState.LeftButton == ButtonState.Pressed && backgroundRect.Contains(mouseState.X, mouseState.Y))
                 {
                     screen = Screen.Waterfall1;
                     friskAction = FriskAction.leg1;
                     timeStamp = (float)gameTime.TotalGameTime.TotalMilliseconds;
+                    MediaPlayer.Stop();
+                    MediaPlayer.Play(spearOfJustice);
                 }
             }
             else if (screen == Screen.Waterfall1)
@@ -213,6 +226,8 @@ namespace Summative_Animation_2_
                     if (milliseconds >= 4750)
                     {
                         screen = Screen.Outro;
+                        MediaPlayer.Stop();
+                        MediaPlayer.Play(home);
                     }
                 }
                 

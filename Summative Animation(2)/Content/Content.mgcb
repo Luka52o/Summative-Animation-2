@@ -140,6 +140,12 @@
 /processorParam:TextureFormat=Color
 /build:FriskRightWalk1.png
 
+#begin home.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:home.mp3
+
 #begin RuinsIntroScreen.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -151,6 +157,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:RuinsIntroScreen.png
+
+#begin spearOfJustice.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:spearOfJustice.mp3
 
 #begin speechBubble.png
 /importer:TextureImporter
